@@ -1,0 +1,14 @@
+{
+  "section": "orders",
+  "titleId": "devolution-reports.navigation.label-group",
+  "subSection": "reports",
+  "searchKeyWordsHelpers": "devolution-reports.navigation.search.kws",
+  "subSectionItems": [
+    {
+      "labelId": "devolution-reports.navigation.label-details",
+      "path": "/admin/devolutionreports",
+      "searchKeyWordsHelpers": "devolution-reports.navigation.details.search.kws"
+    }
+   
+  ]
+}

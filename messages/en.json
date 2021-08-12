@@ -1,0 +1,8 @@
+{
+  "devolution-reports.navigation.label-group": "Devolutions",
+  "devolution-reports.navigation.label-details": "Reports",
+  "devolution-reports.navigation.label-table": "Reports",
+  "devolution-reports.navigation.search.kws": "test, mock, fake",
+  "devolution-reports.navigation.details.search.kws": "details, mock, test, hello",
+  "devolution-reports.navigation.table.search.kws": "table, mock, test, bye"
+}
