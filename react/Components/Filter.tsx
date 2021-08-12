@@ -14,16 +14,15 @@ const Filter = (props: any) => {
 
       <Provider store={store}>
 
-  <div style={{ padding: '10px', color: '#585959', background: '#fafafa' }}>
-  <Card>
-    <div className="flex">
+  <div style={{ padding: '5px', color: '#585959', background: '#fafafa', height:'100%' }} >
+  <Card >
+    <div className="flex-column">
+       <div className="w-100">
          <UserForm></UserForm>
-      <div
-        style={{ flexGrow: 1 }}
-        className="flex items-stretch w-20 justify-center">
-        <Divider orientation="vertical" />
       </div>
+      <div className="w-100 bt mt5">
          <Results ></Results>
+      </div>
     </div>
   </Card>
 </div>

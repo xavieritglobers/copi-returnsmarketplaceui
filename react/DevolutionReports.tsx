@@ -11,9 +11,13 @@ const DevolutionReports: FC = () => {
         <PageHeader title="Reportes de Devoluciones:"/>
       }
     >
-      <PageBlock variation="full">
-        <Filter></Filter>
+      <PageBlock variation="full" >
+      <div className="w-100">
+         
+        <Filter></Filter> 
+      </div>
       </PageBlock>
+     
     </Layout>
   )
 }

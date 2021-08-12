@@ -22,7 +22,7 @@ const UserForm = (props: any) => {
         initialDate:today,
         finalDate: today,
         cc:'',
-        status:'En Proceso',
+        status:'Todos',
         orderformid:''
     }
 
@@ -31,6 +31,7 @@ const UserForm = (props: any) => {
     const [filter,setFilter] = useState(initialFilter)
 
     const statusOptions = [
+        { value: 'Todos', label: 'Todos' },
         { value: 'En Proceso', label: 'En Proceso' },
         { value: 'Rechazado', label: 'Rechazado' },
         { value: 'Finalizado', label: 'Finalizado' },
@@ -65,20 +66,47 @@ const UserForm = (props: any) => {
         <div className="w-50">
             <div className="w-90">
         <DatePicker
-      label="Fecha Inicial:"
+      label="Fecha Inicial de Creación de la Solicitud :"
       size="small"
       value={filter.initialDate}
-      onChange={(date: Date)=> setFilter({  initialDate:date,
-        finalDate: filter.finalDate,
-        cc:filter.cc,
-        status:filter.status,
-        orderformid:filter.orderformid })}
+      onChange={
+        (date: Date)=> 
+        {
+            let iniDate = date.getTime()
+            let finDate = filter.finalDate.getTime()
+            let diff = (finDate-iniDate)/(1000*60*60*24)
+ 
+           
+         if(diff>180)
+         {
+             setMessages({
+                 title:'¡No podemos cambiar la fecha inicial para la consulta!',
+                 message:'La fecha final no puede superar en más de 180 días a la fecha inicial.',
+                 color:'red'
+             })
+         }
+         else
+         {
+        
+            setFilter({  initialDate:date,
+            finalDate: filter.finalDate,
+            cc:filter.cc,
+            status:filter.status,
+            orderformid:filter.orderformid })
+            }
+
+            setMessages(
+                initialMessages
+            )
+        }
+    
+    }
       locale="en-US"
         /></div></div>
     <div className="w-50 ">
     <div className="w-90">
        <DatePicker
-      label="Fecha Final:"
+      label="Fecha Final de Creación de la Solicitud:"
       size="small"
       value={filter.finalDate}
       onChange={(date: Date)=>
@@ -86,8 +114,10 @@ const UserForm = (props: any) => {
            let iniDate = filter.initialDate.getTime()
            let finDate = date.getTime()
            let diff = (finDate-iniDate)/(1000*60*60*24)
-
+           let today = new Date().getTime();
+           let tomorrow = finDate>today ? true : false
           
+           
         if(diff>180)
         {
             setMessages({
@@ -96,7 +126,15 @@ const UserForm = (props: any) => {
                 color:'red'
             })
         }
-        else if(diff<0)
+        else if(tomorrow)
+        {
+            setMessages({
+                title:'¡No podemos cambiar la fecha final para la consulta!',
+                message:'La fecha final no puede ser superior al día actual.',
+                color:'red'
+            })
+        }
+        else if(diff<=-1)
         {
             setMessages({
                 title:'¡No podemos cambiar la fecha final para la consulta!',
@@ -227,8 +265,16 @@ const UserForm = (props: any) => {
     />
             </div>
         </div>
-        <div className="w-50">
-            <div className="w-90">
+        <div className="w-50 flex">
+            <div className="w-40">
+            
+            <Button variation="secondary" onClick={()=>
+            {
+                     setFilter(initialFilter)
+                
+            }}>Restablecer Filtros</Button>
+            </div>
+            <div className="w-40 ml8">
             <Button variation="primary" onClick={()=>
             {
                      setFinalFilter()

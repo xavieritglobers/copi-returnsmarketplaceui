@@ -6,7 +6,7 @@ const initialValue  = {
         initialDate:new Date(),
         finalDate: new Date(),
         cc:'',
-        status:'En Proceso',
+        status:'Todos',
         orderformid:''
 
     },
