@@ -1,109 +1,79 @@
-import React from 'react'
-import { Table } from 'vtex.styleguide'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { connect } from 'react-redux';
+import ReportTable from './ReportTable'
 
 const DisplayData = (props:any) => {
 
-   const {data} = props
 
+    const {data, setReportData} = props
 
-   const tableSchema = {
-    properties: {
-      orderformid: {
-        title: 'Id de la Orden',
-        // default is 200px
-        width: 100,
-      },
-      seller: {
-        title: 'Seller',
-        
-      },
-      clientname: {
-        title: 'Cliente',
-        
-      },
-      clientId: {
-        title: 'Cédula Cliente',
-        
-      },
-      status: {
-        title: 'Estado Registro',
-        
-      },
-      fcreacion: {
-        title: 'Creado el',
-        // default is 200px
-        width: 100,
-      },
-      factualizacion: {
-        title: 'Modificado el',
-        // default is 200px
-        width: 100,
-      },
-      totalprods: {
-        title: 'No. Prod.',
-        // default is 200px
-        width: 100,
-      },
-      motivo: {
-        title: 'Motivo',
-        // default is 200px
-        minWidth: 100,
-      },
-      totaldevolucion: {
-        title: 'Valor Devolución',
-        // default is 200px
-        width: 100,
-      },
-     
-    },
-  }
-  let items: any[] = []
-  for(var i= 0;i<data.length;i++)
+   
+
+ 
+  let itemsForSet = new Array();
+  for(var i= 0;i<data?.devoluciones?.items?.length;i++)
   {
 
-    let fecha = data[i].devolucion.fechacreado.substring(0,10).split("-")
-    let fechaActual = data[i].fechaEstado.substring(0,10).split("-")
+    let fecha = data.devoluciones.items[i].devolucion.fechacreado.substring(0,10).split("-")
+    let fechaActual = data.devoluciones.items[i].fechaEstado.substring(0,10).split("-")
      let item = {
 
-        orderformid:data[i].devolucion.iddevolucion,
+        orderformid:data.devoluciones.items[i].devolucion.orderformid,
 
-        seller:data[i].devolucion.seller.name,
-        clientname: data[i].devolucion.cliente.nombre,
-        clientId: data[i].devolucion.cliente.cedula,
-        status: data[i].estado,
+        seller:data.devoluciones.items[i].devolucion.seller.name,
+        clientname: data.devoluciones.items[i].devolucion.cliente.name,
+        clientId: data.devoluciones.items[i].devolucion.cliente.cedula,
+        status: data.devoluciones.items[i].estado,
         fcreacion:`${fecha[1]}/${fecha[2]}/${fecha[0]}`,
         factualizacion: `${fechaActual[1]}/${fechaActual[2]}/${fechaActual[0]}`,
-        totalprods:data[i].devolucion.totalProductos,
-        motivo:data[i].devolucion.motivo,
-        totaldevolucion:`$${data[i].devolucion.valorTotal}`
-
-      
-        
-         
-
-
-
+        totalprods:data.devoluciones.items[i].devolucion.totalProductos,
+        motivo:data.devoluciones.items[i].devolucion.motivo,
+        totaldevolucion:`${Intl.NumberFormat('en-US', { style: 'currency', currency:'usd' }).format(data.devoluciones.items[i].devolucion.valorTotal)}`
      }
-     items.push(item)
+     itemsForSet.push(item)
      
   }
 
+  /*SORT ITEMS BY ID ASC*/ 
+  itemsForSet.slice().sort((a:any,b:any)=>{ return a.orderformid < b.orderformid ? -1 : a.orderformid > b.orderformid ? 1 : 0})
+  
+  //let [items,setItems] = useState( itemsForSet)
+  
+
+   
+    setReportData(itemsForSet)
+    
+
+  
   
      return (
 
 
         <div className="fl w-100 pt5">
-              <Table
-      fullWidth
-      schema={tableSchema}
-      density="low"
-     
-      items={items}
-         />
-        </div>
+                    <ReportTable></ReportTable>
+            </div>
     )
 }
 
 
+const mapDispatchToProps = (dispatch:any) =>
+{
+    return (
+    {
 
-export default DisplayData
+        setReportData: (items:any) => 
+        {
+            dispatch({ type:'SET_REPORT_DATA', payload:{items} })
+        }
+            
+
+    }
+ )
+
+}
+
+
+  
+
+
+export default connect(null, mapDispatchToProps)(DisplayData)

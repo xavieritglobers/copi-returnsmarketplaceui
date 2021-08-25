@@ -23,7 +23,9 @@ const UserForm = (props: any) => {
         finalDate: today,
         cc:'',
         status:'Todos',
-        orderformid:''
+        orderformid:'',
+        page:0,
+        offset:100
     }
 
     
@@ -76,14 +78,23 @@ const UserForm = (props: any) => {
             let finDate = filter.finalDate.getTime()
             let diff = (finDate-iniDate)/(1000*60*60*24)
  
-           
-         if(diff>180)
+         
+         if(diff<0)
          {
+             
              setMessages({
                  title:'¡No podemos cambiar la fecha inicial para la consulta!',
-                 message:'La fecha final no puede superar en más de 180 días a la fecha inicial.',
+                 message:'La fecha inicial no puede ser mayor a la fecha final.',
                  color:'red'
              })
+         }
+         else if(diff>180)
+         {
+            setMessages({
+                title:'¡No podemos cambiar la fecha inicial para la consulta!',
+                message:'La fecha final no puede superar en más de 180 días a la fecha inicial.',
+                color:'red'
+            })
          }
          else
          {
@@ -92,13 +103,16 @@ const UserForm = (props: any) => {
             finalDate: filter.finalDate,
             cc:filter.cc,
             status:filter.status,
-            orderformid:filter.orderformid })
-            }
+            orderformid:filter.orderformid,
+            page:filter.page,
+            offset:filter.offset })
+            
 
             setMessages(
                 initialMessages
             )
         }
+    }
     
     }
       locale="en-US"
@@ -151,7 +165,9 @@ const UserForm = (props: any) => {
             finalDate: date,
             cc:filter.cc,
             status:filter.status,
-            orderformid:filter.orderformid })}
+            orderformid:filter.orderformid,
+            page:filter.page,
+            offset:filter.offset })}
         }
         }
       locale="en-US"
@@ -178,7 +194,9 @@ const UserForm = (props: any) => {
                             finalDate: filter.finalDate,
                             cc:e.target.value ,
                             status:filter.status,
-                            orderformid:filter.orderformid })
+                            orderformid:filter.orderformid,
+                            page:filter.page,
+                            offset:filter.offset })
                             setMessages(
                                 initialMessages
                             )
@@ -217,7 +235,9 @@ const UserForm = (props: any) => {
                     finalDate: filter.finalDate,
                     cc:filter.cc ,
                     status:filter.status,
-                    orderformid:e.target.value })
+                    orderformid:e.target.value,
+                    page:filter.page,
+                    offset:filter.offset })
 
                     setMessages(
                         initialMessages
@@ -256,7 +276,9 @@ const UserForm = (props: any) => {
             finalDate: filter.finalDate,
             cc:filter.cc ,
             status:v,
-            orderformid:filter.orderformid })
+            orderformid:filter.orderformid,
+            page:filter.page,
+            offset:filter.offset })
 
             setMessages(
                 initialMessages

@@ -16,3 +16,22 @@ body,
   width:100%;
 
 }
+
+.report-summary-row
+{
+  display:flex;
+  flex-direction: row;
+  margin:2%;
+  padding:2%;
+}
+
+.report-summary-label
+{
+  font-weight: bold;
+  width:25%;
+}
+.report-summary-content
+{
+  width:25%;
+
+}

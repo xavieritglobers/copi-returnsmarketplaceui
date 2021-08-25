@@ -7,7 +7,9 @@ const initialValue  = {
         finalDate: new Date(),
         cc:'',
         status:'Todos',
-        orderformid:''
+        orderformid:'',
+        page:0,
+        offset:25
 
     },
     reportData:{
@@ -24,11 +26,22 @@ const reducer = (state=initialValue,action:any) =>
     case 'SET_REPORT_FILTER' :
         {
             const newFilter = action.payload
+
+           
           
             return {...state, reportFilter:newFilter.value}
     
         }
-    
+    case 'SET_REPORT_DATA' :
+    {
+                const newData = action.payload
+
+               
+              
+              
+                return {...state, reportData:newData}
+        
+    }
     
      
     default:
