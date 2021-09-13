@@ -1,0 +1,16 @@
+query GET_HISTORIC( $id:String!) {
+  historicoDevoluciones(id:$id) @context(provider: "itglobers.reportlogic") 
+  {
+
+   historicos{
+       date,
+       comments,
+       attachements,
+       state
+   }
+    
+ }
+  
+}
+
+

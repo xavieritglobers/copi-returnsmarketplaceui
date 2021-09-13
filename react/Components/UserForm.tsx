@@ -7,7 +7,7 @@ import { Card, Divider, DatePicker,Input, Dropdown, Button   } from 'vtex.styleg
 const UserForm = (props: any) => {
 
   
-    const {setReportFilter}=props
+    const {setReportFilter, setSpinner}=props
     const initialMessages = {
 
         title:'Filtros:',
@@ -24,7 +24,8 @@ const UserForm = (props: any) => {
         cc:'',
         status:'Todos',
         orderformid:'',
-        page:0,
+        sellerId:'Todos',
+        page:1,
         offset:100
     }
 
@@ -40,11 +41,23 @@ const UserForm = (props: any) => {
         { value: 'Confirmado', label: 'Confirmado' },
 
     ]
+
+    const sellerOptions = [
+        { value: 'Todos' , label: 'Todos' },
+        { value: 'Copidrogas', label: 'Copidrogas' },
+        { value: 'Drogas la Rebaja', label: 'Drogas la Rebaja' },
+        { value: 'Olímpica' , label: 'Olímpica' },
+        { value: 'Colsubdidio', label: 'Colsubdidio' },
+        { value: 'Drogas para ti' , label: 'Drogas para ti' }
+    ]
     
+
+   
     const setFinalFilter = useCallback(
         () => 
         {
             setReportFilter(filter)
+            setSpinner(true)
             
             
         },
@@ -104,6 +117,7 @@ const UserForm = (props: any) => {
             cc:filter.cc,
             status:filter.status,
             orderformid:filter.orderformid,
+            sellerId:filter.sellerId,
             page:filter.page,
             offset:filter.offset })
             
@@ -166,6 +180,7 @@ const UserForm = (props: any) => {
             cc:filter.cc,
             status:filter.status,
             orderformid:filter.orderformid,
+            sellerId:filter.sellerId,
             page:filter.page,
             offset:filter.offset })}
         }
@@ -195,6 +210,7 @@ const UserForm = (props: any) => {
                             cc:e.target.value ,
                             status:filter.status,
                             orderformid:filter.orderformid,
+                            sellerId:filter.sellerId,
                             page:filter.page,
                             offset:filter.offset })
                             setMessages(
@@ -236,6 +252,7 @@ const UserForm = (props: any) => {
                     cc:filter.cc ,
                     status:filter.status,
                     orderformid:e.target.value,
+                    sellerId:filter.sellerId,
                     page:filter.page,
                     offset:filter.offset })
 
@@ -277,6 +294,7 @@ const UserForm = (props: any) => {
             cc:filter.cc ,
             status:v,
             orderformid:filter.orderformid,
+            sellerId:filter.sellerId,
             page:filter.page,
             offset:filter.offset })
 
@@ -287,6 +305,36 @@ const UserForm = (props: any) => {
     />
             </div>
         </div>
+        <div className="w-50">
+            <div className="w-90">
+    <Dropdown
+      label="Droguista:"
+      size="small"
+      options={sellerOptions}
+      value={filter.sellerId}
+      onChange={(_:number, v:string) => {
+
+        setFilter({ 
+    
+            initialDate:filter.initialDate,
+            finalDate: filter.finalDate,
+            cc:filter.cc ,
+            status:filter.status,
+            orderformid:filter.orderformid,
+            sellerId:v,
+            page:filter.page,
+            offset:filter.offset })
+
+            setMessages(
+                initialMessages
+            )
+      }}
+    />
+            </div>
+        </div>
+        </div>
+        <div className="reports-form-row">
+        <div className="w-50 flex"></div>
         <div className="w-50 flex">
             <div className="w-40">
             
@@ -324,6 +372,10 @@ const mapDispatchToProps = (dispatch:any) =>
         setReportFilter: (value:any) => 
         {
             dispatch({ type:'SET_REPORT_FILTER', payload:{value} })
+        },
+        setSpinner: (spinner:boolean) => 
+        {
+            dispatch({ type:'SET_SPINNER', payload:spinner })
         }
             
 

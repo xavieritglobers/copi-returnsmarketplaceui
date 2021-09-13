@@ -6,42 +6,54 @@ const DisplayData = (props:any) => {
 
 
     const {data, setReportData} = props
+    const devoluciones = data?.devoluciones.devoluciones
 
-   
-
+  
  
   let itemsForSet = new Array();
-  for(var i= 0;i<data?.devoluciones?.items?.length;i++)
+  for(var i= 0;i<devoluciones?.length;i++)
   {
 
-    let fecha = data.devoluciones.items[i].devolucion.fechacreado.substring(0,10).split("-")
-    let fechaActual = data.devoluciones.items[i].fechaEstado.substring(0,10).split("-")
-     let item = {
+ 
 
-        orderformid:data.devoluciones.items[i].devolucion.orderformid,
+    let dev = devoluciones[i]
 
-        seller:data.devoluciones.items[i].devolucion.seller.name,
-        clientname: data.devoluciones.items[i].devolucion.cliente.name,
-        clientId: data.devoluciones.items[i].devolucion.cliente.cedula,
-        status: data.devoluciones.items[i].estado,
+    
+
+    let fecha = dev.fechacreado.substring(0,10).split("-")
+    let item = {
+
+        orderformid:dev.orderformid,
         fcreacion:`${fecha[1]}/${fecha[2]}/${fecha[0]}`,
-        factualizacion: `${fechaActual[1]}/${fechaActual[2]}/${fechaActual[0]}`,
-        totalprods:data.devoluciones.items[i].devolucion.totalProductos,
-        motivo:data.devoluciones.items[i].devolucion.motivo,
-        totaldevolucion:`${Intl.NumberFormat('en-US', { style: 'currency', currency:'usd' }).format(data.devoluciones.items[i].devolucion.valorTotal)}`
-     }
+        seller:dev.seller.name,
+        sellerId:dev.seller.id,
+        clientname: dev.cliente.name,
+        clientId: dev.cliente.cedula,
+        clientaddress:`${dev.cliente.address}, ${dev.cliente.city}`,
+        status: dev.status,
+        motivo:dev.motivo,
+        totaldevolucion:`${Intl.NumberFormat('en-US', { style: 'currency', currency:'usd' }).format(dev.totaldevolucion)}`,
+        totalprods:dev.totalprods,
+        documentid:dev.documentid
+    }
      itemsForSet.push(item)
      
   }
 
   /*SORT ITEMS BY ID ASC*/ 
-  itemsForSet.slice().sort((a:any,b:any)=>{ return a.orderformid < b.orderformid ? -1 : a.orderformid > b.orderformid ? 1 : 0})
+  itemsForSet.slice().sort((a:any,b:any)=>{ return a.fcreacion < b.fcreacion ? -1 : a.fcreacion > b.fcreacion ? 1 : 0})
   
   //let [items,setItems] = useState( itemsForSet)
-  
+
+ 
+
+  const reportData={
+    devoluciones:itemsForSet,
+    paginacion:data?.devoluciones.paginacion
+    }
 
    
-    setReportData(itemsForSet)
+    setReportData(reportData)
     
 
   

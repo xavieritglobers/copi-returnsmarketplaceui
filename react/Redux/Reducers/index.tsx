@@ -8,13 +8,16 @@ const initialValue  = {
         cc:'',
         status:'Todos',
         orderformid:'',
-        page:0,
-        offset:25
+        sellerId:'Todos',
+        page:1,
+        offset:100
 
     },
     reportData:{
-        items:[]
-    }
+        devoluciones:[],
+        paginacion:{page: 0, pageSize: 0, total: 0}
+    },
+    spinner:false
 }
 
 
@@ -40,6 +43,12 @@ const reducer = (state=initialValue,action:any) =>
               
               
                 return {...state, reportData:newData}
+        
+    }
+    case 'SET_SPINNER' :
+    {
+                const spinner = action.payload
+                return {...state, spinner:spinner}
         
     }
     

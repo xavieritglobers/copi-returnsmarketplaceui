@@ -1,84 +1,174 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { Table } from 'vtex.styleguide'
-import { ModalDialog } from 'vtex.styleguide'
+import {  ModalDialog, Spinner, Button  } from 'vtex.styleguide'
+import { useFullSession    } from 'vtex.session-client'
+
 import axios from 'axios';
 import "../../react/styles.global.css"
+import DisplayDetails from './DisplayDetails'
 
 
 const ReportTable = (props:any) => {
 
+ 
+  const {  data } = useFullSession ()
+
+  console.log("SESSIONDATA", data);
+
+  const email = data?.session.namespaces.authentication.adminUserEmail.value
+ 
+
+   const  {reportFilter, spinner,  setSpinner, setReportFilter} = props
+
   
-   const  {reportFilter} = props
-   const {items} = props.reportData
+   const {items} = props?.reportData
+
+
+   
+   const {devoluciones,paginacion} = items
+
+
+  
+   
+   if((devoluciones?.length!==0 && spinner===true) || (paginacion?.pageSize!==0 && paginacion?.total===0))
+   {
+     setSpinner(false)
+   }
 
    const [isModalOpen, setModalOpen]=useState(false)
+   const [isConfirmationOpen, setConfirmationOpen]=useState(false)
+   const [isDetailsOpen, setDetailsOpen]=useState(false)
+   const [selectedDevolution, setSelectedDevolution]=useState({})
 
+   useEffect(() => {
+    setTableOrder({
+        items: devoluciones,
+        dataSort: {
+            sortedBy: "orderformid",
+            sortOrder: "ASC",
+        },
+      })
+      return () => {
+      }
+  }, [items])
   
    const tableSchema = {
     properties: {
       orderformid: {
-        title: 'Orden',
+        title: 'Orden #',
         // default is 200px
-        width: 80,
+        width: 100,
         sortable: true,
+        headerRight:false,
+        cellRenderer: (data:any) => (
+          <div className="numeric-cell data-cell">{data.cellData}</div>
+        ),
+      },
+      fcreacion: {
+        title: 'Creado',
+        // default is 200px
+        width: 100,
+        sortable: true,
+        headerRight:false,
+        cellRenderer: (data:any) => (
+          <div className=" data-cell">{data.cellData}</div>
+        ),
       },
       seller: {
         title: 'Seller',
         sortable: true,
-        width: 120,
-        
-      },
-      clientname: {
-        title: 'Cliente',
-        sortable: true,
         width: 100,
+        headerRight:false,
+        cellRenderer: (data:any) => (
+          <div className=" data-cell">{data.cellData}</div>
+        ),
         
       },
       clientId: {
         title: 'Cédula Cliente',
         sortable: true,
-        width: 100,
+        width: 120,
+        headerRight:false,
+        cellRenderer: (data:any) => (
+          <div className="numeric-cell data-cell">{data.cellData}</div>
+        ),
         
       },
+      clientname: {
+        title: 'Nombre del Cliente',
+        sortable: true,
+        width: 150,
+        headerRight:false,
+        cellRenderer: (data:any) => (
+          <div className=" data-cell">{data.cellData}</div>
+        ),
+        
+      },
+     
       status: {
         title: 'Estado Registro',
         sortable: true,
-        width: 100,
+        width: 120,
+        headerRight:false,
+        cellRenderer: (data:any) => (
+          <div className=" data-cell">{data.cellData}</div>
+        ),
         
       },
-      fcreacion: {
-        title: 'Creado el',
-        // default is 200px
-        width: 100,
-        sortable: true,
-      },
-      factualizacion: {
-        title: 'Modificado el',
-        // default is 200px
-        width: 100,
-        sortable: true,
-      },
-      totalprods: {
-        title: 'No. Prod.',
-        // default is 200px
-        width: 100,
-        sortable: true,
-      },
+    
       motivo: {
         title: 'Motivo',
         // default is 200px
         minWidth: 100,
         sortable: true,
+        headerRight:false,
+        cellRenderer: (data:any) => (
+          <div className=" data-cell">{data.cellData}</div>
+        ),
+      },
+      totalprods: {
+        title: 'Num. Prods.',
+        // default is 200px
+        width: 50,
+        sortable: true,
+        headerRight:false,
+        cellRenderer: (data:any) => (
+          <div className="numeric-cell data-cell">{data.cellData}</div>
+        ),
       },
       totaldevolucion: {
         title: 'Valor Devolución',
         // default is 200px
-        width: 100,
+        width: 150,
         sortable: true,
+        headerRight:false,
+        cellRenderer: (data:any) => (
+          <div className="numeric-cell data-cell">{data.cellData}</div>
+        ),
+      },
+      detalles: {
+        title: ' ',
+        // default is 200px
+        width: 150,
+        sortable: false,
+        headerRight:false,
+        cellRenderer:  (data:any) => {
+          return (
+            <Button variation="primary" size="small" 
+              
+              onClick={(e:any) => {
+                setSelectedDevolution(data.rowData)
+                setDetailsOpen(true)
+                
+                }}>
+            Ver Detalles
+            </Button>
+          )
       },
      
     },
+  },
   }
 
   const [tableOrder, setTableOrder] = useState({
@@ -90,17 +180,7 @@ const ReportTable = (props:any) => {
     },
   }) 
 
-  useEffect(() => {
-    setTableOrder({
-        items: items,
-        dataSort: {
-            sortedBy: "orderformid",
-            sortOrder: "ASC",
-        },
-      })
-      return () => {
-      }
-  }, [items])
+ 
 
   const exportToCVS = useCallback(
     () => {
@@ -112,7 +192,8 @@ const ReportTable = (props:any) => {
       En caso contrario, solo se enviará el filtro*/ 
       const dataToSend = {
         reportFilter:reportFilter, 
-        items:items
+        items:devoluciones, 
+        paginacion:paginacion
       
       }
       // Obtener la ruta del servidor
@@ -123,11 +204,11 @@ const ReportTable = (props:any) => {
      
 
       axios.post(url, dataToSend).
-     then((res:any) => console.log(res)
+       then((res:any) => console.log(res)
      ).catch((error:any)=>console.log(error))
 
     },
-    [reportFilter,items],
+    [reportFilter,devoluciones],
   )
 
 
@@ -143,39 +224,39 @@ const ReportTable = (props:any) => {
         
 
         orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ return a.orderformid < b.orderformid ? -1 : a.orderformid > b.orderformid ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ return  a.orderformid < b.orderformid ? 1 : a.orderformid > b.orderformid ? -1 : 0 })
+        ? devoluciones.slice().sort((a:any,b:any)=>{ return a.orderformid < b.orderformid ? -1 : a.orderformid > b.orderformid ? 1 : 0})
+        : devoluciones.slice().sort((a:any,b:any)=>{ return  a.orderformid < b.orderformid ? 1 : a.orderformid > b.orderformid ? -1 : 0 })
       }
       else if (sortedBy === 'seller')
       {
        
       
         orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ return a.seller < b.seller ? -1 : a.seller > b.seller ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ return  a.seller < b.seller ? 1 : a.seller > b.seller ? -1 : 0 })
+        ? devoluciones.slice().sort((a:any,b:any)=>{ return a.seller < b.seller ? -1 : a.seller > b.seller ? 1 : 0})
+        : devoluciones.slice().sort((a:any,b:any)=>{ return  a.seller < b.seller ? 1 : a.seller > b.seller ? -1 : 0 })
       }
       else if (sortedBy === 'clientname')
       {
      
         orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ return a.clientname < b.clientname ? -1 : a.clientname > b.clientname ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ return  a.clientname < b.clientname ? 1 : a.clientname > b.clientname ? -1 : 0 })
+        ? devoluciones.slice().sort((a:any,b:any)=>{ return a.clientname < b.clientname ? -1 : a.clientname > b.clientname ? 1 : 0})
+        : devoluciones.slice().sort((a:any,b:any)=>{ return  a.clientname < b.clientname ? 1 : a.clientname > b.clientname ? -1 : 0 })
       }
       else if (sortedBy === 'clientId')
       {
        
   
         orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ return a.clientId < b.clientId ? -1 : a.clientId > b.clientId ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ return  a.clientId < b.clientId ? 1 : a.clientId > b.clientId ? -1 : 0 })
+        ? devoluciones.slice().sort((a:any,b:any)=>{ return a.clientId < b.clientId ? -1 : a.clientId > b.clientId ? 1 : 0})
+        : devoluciones.slice().sort((a:any,b:any)=>{ return  a.clientId < b.clientId ? 1 : a.clientId > b.clientId ? -1 : 0 })
       }
       else if (sortedBy === 'status')
       {
        
   
         orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ return a.status < b.status ? -1 : a.status > b.status ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ return  a.status < b.status ? 1 : a.status > b.status ? -1 : 0 })
+        ? devoluciones.slice().sort((a:any,b:any)=>{ return a.status < b.status ? -1 : a.status > b.status ? 1 : 0})
+        : devoluciones.slice().sort((a:any,b:any)=>{ return  a.status < b.status ? 1 : a.status > b.status ? -1 : 0 })
       }
    
       else if (sortedBy === 'fcreacion')
@@ -183,26 +264,18 @@ const ReportTable = (props:any) => {
        
   
         orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ return a.fcreacion < b.fcreacion ? -1 : a.fcreacion > b.fcreacion ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ return  a.fcreacion < b.fcreacion ? 1 : a.fcreacion > b.fcreacion ? -1 : 0 })
+        ? devoluciones.slice().sort((a:any,b:any)=>{ return a.fcreacion < b.fcreacion ? -1 : a.fcreacion > b.fcreacion ? 1 : 0})
+        : devoluciones.slice().sort((a:any,b:any)=>{ return  a.fcreacion < b.fcreacion ? 1 : a.fcreacion > b.fcreacion ? -1 : 0 })
       }
 
-      else if (sortedBy === 'factualizacion')
-      {
-       
-  
-        orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ return a.factualizacion < b.factualizacion ? -1 : a.factualizacion > b.factualizacion ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ return  a.fcreacion < b.factualizacion ? 1 : a.factualizacion > b.factualizacion ? -1 : 0 })
-      }
-
+    
       else if (sortedBy === 'totalprods')
       {
        
   
         orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ return a.totalprods < b.totalprods ? -1 : a.totalprods > b.totalprods ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ return  a.totalprods < b.totalprods ? 1 : a.totalprods > b.totalprods ? -1 : 0 })
+        ? devoluciones.slice().sort((a:any,b:any)=>{ return a.totalprods < b.totalprods ? -1 : a.totalprods > b.totalprods ? 1 : 0})
+        : devoluciones.slice().sort((a:any,b:any)=>{ return  a.totalprods < b.totalprods ? 1 : a.totalprods > b.totalprods ? -1 : 0 })
       }
    
       else if (sortedBy === 'totaldevolucion')
@@ -210,7 +283,7 @@ const ReportTable = (props:any) => {
        
     
         orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ 
+        ? devoluciones.slice().sort((a:any,b:any)=>{ 
             
             let devA = a.totaldevolucion.split("$")
             devA = devA[1]
@@ -220,7 +293,7 @@ const ReportTable = (props:any) => {
            
             
         return parseFloat(devA) < parseFloat(devB) ? -1 : parseFloat(devA) >parseFloat(devB)  ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ 
+        : devoluciones.slice().sort((a:any,b:any)=>{ 
             
             let devA = a.totaldevolucion.split("$")
              devA = devA[1]
@@ -238,8 +311,8 @@ const ReportTable = (props:any) => {
        
   
         orderedItems = sortOrder === 'ASC'
-        ? items.slice().sort((a:any,b:any)=>{ return a.motivo < b.motivo ? -1 : a.motivo > b.motivo ? 1 : 0})
-        : items.slice().sort((a:any,b:any)=>{ return  a.motivo < b.motivo ? 1 : a.motivo > b.motivo ? -1 : 0 })
+        ? devoluciones.slice().sort((a:any,b:any)=>{ return a.motivo < b.motivo ? -1 : a.motivo > b.motivo ? 1 : 0})
+        : devoluciones.slice().sort((a:any,b:any)=>{ return  a.motivo < b.motivo ? 1 : a.motivo > b.motivo ? -1 : 0 })
       }
    
 
@@ -256,17 +329,44 @@ const ReportTable = (props:any) => {
 
      
     },
-    [items],
+    [devoluciones],
   )
 
   
 
  
  
-
-
-    return (
+   
+    if(spinner)
+    {
+        return (<div className="fl w-100 pt5"><Spinner /> </div>)
+    }
+    else
+    {
+    return ( 
         <div className="fl w-100 pt5">
+          <ModalDialog
+            centered
+            isOpen={isDetailsOpen}
+            onClose={()=>setDetailsOpen(false)}
+            confirmation={{
+              onClick:()=> { 
+             
+               window.print()
+              },
+              label: 'Imprimir',
+              isDangerous: false,
+            }}
+            cancelation={{
+              label: '',
+              onClick:()=> { 
+             
+                setDetailsOpen(false)
+              },
+            }}
+          
+
+            ><DisplayDetails devolution={selectedDevolution}></DisplayDetails></ModalDialog>
         <Table
           fullWidth
           items={tableOrder.items}
@@ -277,11 +377,7 @@ const ReportTable = (props:any) => {
             sortOrder: tableOrder.dataSort.sortOrder,
           }}
           toolbar={{
-            inputSearch: {
-           
-              placeholder: 'Buscar...',
-            
-            },download: {
+            download: {
               label: 'Exportar a CSV',
               handleCallback: () => setModalOpen(true)
             },
@@ -303,25 +399,88 @@ const ReportTable = (props:any) => {
           }}
           density="high"
           pagination={{
-            onNextClick: "",
-            onPrevClick: "",
-            currentItemFrom: reportFilter.page+1,
-            currentItemTo: reportFilter.offset,
+            onNextClick: ()=>{
+              setReportFilter({
+
+                initialDate:reportFilter.initialDate,
+                finalDate: reportFilter.finalDate,
+                cc:reportFilter.cc,
+                status:reportFilter.status,
+                orderformid:reportFilter.orderformid,
+                sellerId:reportFilter.sellerId,
+                page:paginacion.page+1,
+                offset:paginacion.pageSize
+        
+            })
+            },
+            onPrevClick: ()=>{
+              setReportFilter({
+
+                initialDate:reportFilter.initialDate,
+                finalDate: reportFilter.finalDate,
+                cc:reportFilter.cc,
+                status:reportFilter.status,
+                orderformid:reportFilter.orderformid,
+                sellerId:reportFilter.sellerId,
+                page:paginacion.page-1,
+                offset:paginacion.pageSize
+        
+            })
+            },
+            currentItemFrom: (reportFilter.page-1)*100+1,
+            currentItemTo: ((reportFilter.page-1)*100+1+reportFilter.offset)<paginacion?.total ?((reportFilter.page-1)*100+1+reportFilter.offset):paginacion?.total,
             onRowsChange: "",
             textShowRows: 'Registros Visibles:',
             textOf: 'de',
-            totalItems: tableOrder.items.length,
-            rowsOptions: [25, 50,100],
+            totalItems: paginacion?.total,
+            rowsOptions: [100],
           }}
   
          
          
              />
+             <ModalDialog
+            centered
+            isOpen={isConfirmationOpen}
+            onClose={()=>setConfirmationOpen(false)}
+            confirmation={{
+              onClick:()=> { 
+             
+                setConfirmationOpen(false)
+              },
+              label: 'Aceptar',
+              isDangerous: false,
+            }}
+            cancelation={{
+              label: '',
+              onClick:()=> { 
+             
+                setConfirmationOpen(false)
+              },
+            }}
+          
+
+            >
+            <div >
+            <p className="f3 f3-ns fw3 gray">
+             Enviaremos un correo a {email}, tan pronto esté la información disponible para descargar. 
+
+            </p>
+         
+            </div>
+
+
+            </ModalDialog>
               <ModalDialog
           centered
         
           confirmation={{
-            onClick:()=> exportToCVS(),
+            onClick:()=> { 
+              exportToCVS()
+              setModalOpen(false)
+              setConfirmationOpen(true)
+            },
+
             label: 'Sí. Generar Reporte',
             isDangerous: false,
           }}
@@ -375,6 +534,12 @@ const ReportTable = (props:any) => {
             <div className="report-summary-content">
               {reportFilter.orderformid!=='' ? reportFilter.orderformid : 'Todas'}
             </div>
+            <div className="report-summary-label">
+              Seller:
+            </div>
+            <div className="report-summary-content">
+              {reportFilter.sellerId!=='Todos' ? reportFilter.sellerId : 'Todos'}
+            </div>
            
             </div>
             </div>
@@ -387,6 +552,7 @@ const ReportTable = (props:any) => {
         </ModalDialog>
             </div>
     ) 
+        }
 
   
 }
@@ -395,10 +561,30 @@ const mapStateToProps = (state:any) =>{
   
   return {
     reportData: state.reportData,
-    reportFilter:state.reportFilter
+    reportFilter:state.reportFilter, 
+    spinner:state.spinner
   }
 }
 
+const mapDispatchToProps = (dispatch:any) =>
+{
+    return (
+    {
+
+        setSpinner: (spinner:boolean) => 
+        {
+            dispatch({ type:'SET_SPINNER', payload:spinner })
+        },
+
+        setReportFilter: (value:any) => 
+        {
+            dispatch({ type:'SET_REPORT_FILTER', payload:{value} })
+        },
+
+    }
+ )
+
+}
 
 
-export default connect(mapStateToProps)(ReportTable)
+export default connect(mapStateToProps, mapDispatchToProps)(ReportTable)

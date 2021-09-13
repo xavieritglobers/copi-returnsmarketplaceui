@@ -3,37 +3,37 @@ query GET_REPORT(
         $finalDate:String!,
         $status:String!,
         $cc:String,
-        $orderformid:String
+        $orderformid:String, 
+        $sellerId:String!,
+        $page:Int!,
+        $offset:Int!
         ) {
   devoluciones(
       initialDate: $initialDate,
       finalDate:$finalDate,
       status:$status,
       cc:$cc,
-      orderformid:$orderformid
+      orderformid:$orderformid, 
+      sellerId:$sellerId,
+      page:$page,
+      offset:$offset
   ) @context(provider: "itglobers.reportlogic") {
-    items{
-      idhistorico
-      estado
-      fechaEstado
-      devolucion{
-        iddevolucion
-        orderformid
-        motivo
-        totalProductos
-        fechacreado
-        valorTotal
-        cliente{
-          name
-          cedula
-        }
-        seller{
-          id
-          name
-        }
-      }
+
+    devoluciones {
+     orderformid,
+      fechacreado,
+      seller{name,id},
+      cliente{name, cedula, address, city},
+      status, 
+      totalprods,
+      motivo,
+      totaldevolucion,
+      documentid
+    },
+    paginacion{page,pageSize, total}
+    
     }
-  }
+  
 }
 
 

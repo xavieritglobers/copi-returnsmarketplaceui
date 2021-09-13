@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "vtex.styleguide": "9.x",
-    "itglobers.reportlogic": "0.x"
+    "itglobers.reportlogic": "0.x",
+    "vtex.session-client": "1.x"
   },
   "builders": {
     "react": "3.x",

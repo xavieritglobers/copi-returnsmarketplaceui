@@ -11,16 +11,21 @@ const Results = (props:any) => {
    
     const {reportFilter,  setReportData} = props
 
-    const {initialDate, finalDate, cc, status,orderformid} = reportFilter
+   
+
+    const {initialDate, finalDate, cc, status,orderformid, sellerId, page, offset} = reportFilter
     
-    const [getReportData, { data }] = useLazyQuery(GET_REPORT, {
+    const [getReportData, { data, error }] = useLazyQuery(GET_REPORT, {
         fetchPolicy: 'network-only',
         variables: {
             initialDate:initialDate, 
             finalDate:finalDate, 
             cc:cc,
             status:status,
-            orderformid:orderformid
+            orderformid:orderformid, 
+            sellerId:sellerId, 
+            page:page, 
+            offset:offset
         },
       })
 
@@ -29,13 +34,25 @@ const Results = (props:any) => {
           
          
           return () => {
-              let items = {items:[]}
-              setReportData( items)
+              let devoluciones = {devoluciones:[], paginacion:{page: 0, pageSize: 0, total: 0}}
+              setReportData( devoluciones)
           }
       }, [reportFilter])
 
     
-      
+      if(error)
+      {
+        console.log("ERROR",error)
+        return (   
+        <div className="w-100 pt5"> 
+        <div className="w-100"> 
+          Algo salió mal. Por favor, intenta de nuevo.
+        </div>
+        </div>)
+      }
+        
+    
+     else {
   
     return (
        <div className="w-100 pt5"> 
@@ -58,7 +75,7 @@ const Results = (props:any) => {
             <b>Total Registros:&nbsp;</b> {' '}
         </div>
         <div >
-                {` ${data ? data?.devoluciones?.items?.length : 0}`}
+                {` ${data ? data?.devoluciones?.paginacion?.total : 0}`}
         </div>
         </div>
        
@@ -70,6 +87,7 @@ const Results = (props:any) => {
          </div>
          </div>
     )
+     }
 }
 
 const mapStateToProps = (state:any) =>{
@@ -86,9 +104,9 @@ const mapDispatchToProps = (dispatch:any) =>
     return (
     {
 
-        setReportData: (items:any) => 
+        setReportData: (data:any) => 
         {
-            dispatch({ type:'SET_REPORT_DATA', payload:{items} })
+            dispatch({ type:'SET_REPORT_DATA', payload:{data} })
         }
             
 

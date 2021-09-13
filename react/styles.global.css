@@ -34,4 +34,25 @@ body,
 {
   width:25%;
 
+
+}
+
+.data-cell
+{
+  font-size:12px;
+  width: 98%;
+  padding:1%;
+  word-wrap: break-word;
+}
+
+.numeric-cell
+{
+  text-align: right;
+}
+
+.details-comments
+{
+  font-size:10px;
+  width: 98%;
+  word-wrap: break-word
 }
